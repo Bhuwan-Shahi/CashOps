@@ -4,14 +4,14 @@ import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/db'
 import { WishlistStatus } from '@prisma/client'
 import type { WishlistFormData } from '@/types'
-
-const DEFAULT_USER_ID = process.env.DEFAULT_USER_ID || 'user_default_001'
+import { getCurrentUser } from '@/lib/get-current-user'
 
 export async function createWishlistItem(data: WishlistFormData) {
   try {
+    const user = await getCurrentUser()
     const item = await prisma.wishlistItem.create({
       data: {
-        userId: DEFAULT_USER_ID,
+        userId: user.id,
         ...data,
       },
     })
@@ -55,8 +55,9 @@ export async function deleteWishlistItem(id: string) {
 
 export async function getWishlistItems() {
   try {
+    const user = await getCurrentUser()
     const items = await prisma.wishlistItem.findMany({
-      where: { userId: DEFAULT_USER_ID },
+      where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
     })
 
@@ -105,7 +106,7 @@ export async function addPayment(id: string, paymentAmount: number) {
       // Get or create a category for wishlist payments
       let category = await tx.category.findFirst({
         where: {
-          userId: DEFAULT_USER_ID,
+          userId: item.userId,
           type: 'EXPENSE',
           name: 'Wishlist Payment',
         },
@@ -115,7 +116,7 @@ export async function addPayment(id: string, paymentAmount: number) {
       if (!category) {
         category = await tx.category.create({
           data: {
-            userId: DEFAULT_USER_ID,
+            userId: item.userId,
             type: 'EXPENSE',
             name: 'Wishlist Payment',
             color: '#9333ea', // Purple color
@@ -126,7 +127,7 @@ export async function addPayment(id: string, paymentAmount: number) {
       // Create an expense transaction to deduct from balance
       await tx.transaction.create({
         data: {
-          userId: DEFAULT_USER_ID,
+          userId: item.userId,
           type: 'EXPENSE',
           amount: paymentAmount,
           category: category.name, // Use category name, not categoryId

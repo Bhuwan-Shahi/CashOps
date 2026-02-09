@@ -4,14 +4,14 @@ import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/db'
 import { TransactionType } from '@prisma/client'
 import type { TransactionFormData } from '@/types'
-
-const DEFAULT_USER_ID = process.env.DEFAULT_USER_ID || 'user_default_001'
+import { getCurrentUser } from '@/lib/get-current-user'
 
 export async function createTransaction(data: TransactionFormData) {
   try {
+    const user = await getCurrentUser()
     const transaction = await prisma.transaction.create({
       data: {
-        userId: DEFAULT_USER_ID,
+        userId: user.id,
         type: data.type,
         amount: data.amount,
         category: data.category,
@@ -70,7 +70,8 @@ export async function getTransactions(filters?: {
   category?: string
 }) {
   try {
-    const where: any = { userId: DEFAULT_USER_ID }
+    const user = await getCurrentUser()
+    const where: any = { userId: user.id }
 
     if (filters?.startDate || filters?.endDate) {
       where.date = {}

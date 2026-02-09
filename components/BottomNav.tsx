@@ -11,7 +11,7 @@ export default function BottomNav() {
     { href: '/', icon: Home, label: 'Home' },
     { href: '/transactions', icon: BookOpen, label: 'Cash Book' },
     { href: '/analytics', icon: BarChart3, label: 'Analytics' },
-    { href: '/categories', icon: Settings, label: 'Settings' },
+    { href: '/settings', icon: Settings, label: 'Settings' },
   ]
 
   return (

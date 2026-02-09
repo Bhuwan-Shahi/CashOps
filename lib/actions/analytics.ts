@@ -3,24 +3,24 @@
 import prisma from '@/lib/db'
 import { TransactionType } from '@prisma/client'
 import { startOfMonth, endOfMonth } from 'date-fns'
-
-const DEFAULT_USER_ID = process.env.DEFAULT_USER_ID || 'user_default_001'
+import { getCurrentUser } from '@/lib/get-current-user'
 
 export async function getDashboardStats() {
   try {
+    const user = await getCurrentUser()
     const now = new Date()
     const monthStart = startOfMonth(now)
     const monthEnd = endOfMonth(now)
 
     // Get all transactions
     const allTransactions = await prisma.transaction.findMany({
-      where: { userId: DEFAULT_USER_ID },
+      where: { userId: user.id },
     })
 
     // Get monthly transactions
     const monthlyTransactions = await prisma.transaction.findMany({
       where: {
-        userId: DEFAULT_USER_ID,
+        userId: user.id,
         date: {
           gte: monthStart,
           lte: monthEnd,
@@ -82,9 +82,10 @@ export async function getDashboardStats() {
 
 export async function getCategoryBreakdown(type: TransactionType) {
   try {
+    const user = await getCurrentUser()
     const transactions = await prisma.transaction.findMany({
       where: {
-        userId: DEFAULT_USER_ID,
+        userId: user.id,
         type,
       },
     })

@@ -3,14 +3,14 @@
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/db'
 import type { CategoryFormData } from '@/types'
-
-const DEFAULT_USER_ID = process.env.DEFAULT_USER_ID || 'user_default_001'
+import { getCurrentUser } from '@/lib/get-current-user'
 
 export async function createCategory(data: CategoryFormData) {
   try {
+    const user = await getCurrentUser()
     const category = await prisma.category.create({
       data: {
-        userId: DEFAULT_USER_ID,
+        userId: user.id,
         ...data,
       },
     })
@@ -25,7 +25,8 @@ export async function createCategory(data: CategoryFormData) {
 
 export async function getCategories(type?: string) {
   try {
-    const where: any = { userId: DEFAULT_USER_ID }
+    const user = await getCurrentUser()
+    const where: any = { userId: user.id }
     if (type) where.type = type
 
     const categories = await prisma.category.findMany({
