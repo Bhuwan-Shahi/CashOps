@@ -7,10 +7,24 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatCurrency(amount: number | string): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(num)
+  
+  // Format with Nepali number system (X,XX,XXX)
+  const formatted = num.toFixed(2)
+  const [integer, decimal] = formatted.split('.')
+  
+  // Nepali formatting: last 3 digits, then groups of 2
+  let result = ''
+  const len = integer.length
+  
+  if (len <= 3) {
+    result = integer
+  } else {
+    const lastThree = integer.slice(-3)
+    const remaining = integer.slice(0, -3)
+    result = remaining.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + lastThree
+  }
+  
+  return `Rs.${result}.${decimal}`
 }
 
 export function formatDate(date: Date | string): string {

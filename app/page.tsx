@@ -55,7 +55,7 @@ export default async function DashboardPage() {
                 <span className="text-sm text-gray-600">Income</span>
               </div>
               <div className="text-2xl font-bold text-gray-900">
-                ₹{stats.monthlyIncome.toFixed(2)}
+                {formatCurrency(stats.monthlyIncome)}
               </div>
               <p className="text-xs text-gray-500 mt-1">This Month</p>
             </CardContent>
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
                 <span className="text-sm text-gray-600">Expense</span>
               </div>
               <div className="text-2xl font-bold text-gray-900">
-                ₹{stats.monthlyExpenses.toFixed(2)}
+                {formatCurrency(stats.monthlyExpenses)}
               </div>
               <p className="text-xs text-gray-500 mt-1">This Month</p>
             </CardContent>
@@ -83,7 +83,7 @@ export default async function DashboardPage() {
           <CardContent className="p-5">
             <p className="text-sm text-blue-100 mb-1">Current Balance</p>
             <div className="text-4xl font-bold text-white">
-              ₹{stats.netBalance.toFixed(2)}
+              {formatCurrency(stats.netBalance)}
             </div>
           </CardContent>
         </Card>
@@ -140,8 +140,7 @@ export default async function DashboardPage() {
                           transaction.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
                         }`}
                       >
-                        {transaction.type === 'INCOME' ? '+' : '-'}₹
-                        {Number(transaction.amount).toFixed(2)}
+                        {transaction.type === 'INCOME' ? '+' : '-'}{formatCurrency(Number(transaction.amount)).replace('Rs.', 'Rs.')}
                       </p>
                       <p className="text-xs text-gray-500">
                         {format(new Date(transaction.date), 'dd MMM yyyy')}
