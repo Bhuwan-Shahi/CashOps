@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowDown, ArrowUp, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import PersonalizedGreeting from '@/components/PersonalizedGreeting'
 
 export default async function DashboardPage() {
   const [statsResult, transactionsResult] = await Promise.all([
@@ -31,6 +32,7 @@ export default async function DashboardPage() {
       <div className="bg-[#1976D2] text-white p-4 shadow-md">
         <div className="container mx-auto max-w-2xl flex items-center justify-between">
           <div>
+            <PersonalizedGreeting />
             <h1 className="text-2xl font-bold">CashOps</h1>
             <p className="text-sm text-blue-100">{format(new Date(), 'dd MMM yyyy')}</p>
           </div>
