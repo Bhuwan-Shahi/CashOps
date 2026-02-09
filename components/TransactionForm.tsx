@@ -73,10 +73,10 @@ export default function TransactionForm({ categories, initialType, transaction }
         <button
           type="button"
           onClick={() => setFormData({ ...formData, type: 'INCOME', category: '' })}
-          className={`p-4 rounded-lg font-semibold text-white transition-all ${
+          className={`p-4 rounded-lg font-semibold transition-all ${
             formData.type === 'INCOME'
-              ? 'bg-green-600 shadow-lg scale-105'
-              : 'bg-white text-gray-600 border border-gray-200'
+              ? 'bg-green-600 text-white shadow-lg scale-105'
+              : 'bg-white text-gray-700 border border-gray-200'
           }`}
         >
           <span className="text-lg">↓</span> Income
@@ -84,10 +84,10 @@ export default function TransactionForm({ categories, initialType, transaction }
         <button
           type="button"
           onClick={() => setFormData({ ...formData, type: 'EXPENSE', category: '' })}
-          className={`p-4 rounded-lg font-semibold text-white transition-all ${
+          className={`p-4 rounded-lg font-semibold transition-all ${
             formData.type === 'EXPENSE'
-              ? 'bg-red-600 shadow-lg scale-105'
-              : 'bg-white text-gray-600 border border-gray-200'
+              ? 'bg-red-600 text-white shadow-lg scale-105'
+              : 'bg-white text-gray-700 border border-gray-200'
           }`}
         >
           <span className="text-lg">↑</span> Expense
