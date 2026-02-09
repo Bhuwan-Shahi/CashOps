@@ -7,26 +7,32 @@ import CategoryChart from '@/components/CategoryChart'
 import MonthlyTrend from '@/components/MonthlyTrend'
 
 export default async function AnalyticsPage() {
-  const [statsResult, expenseBreakdownResult, incomeBreakdownResult, transactionsResult] =
-    await Promise.all([
-      getDashboardStats(),
-      getCategoryBreakdown('EXPENSE'),
-      getCategoryBreakdown('INCOME'),
-      getTransactions(),
-    ])
+  try {
+    const [statsResult, expenseBreakdownResult, incomeBreakdownResult, transactionsResult] =
+      await Promise.all([
+        getDashboardStats(),
+        getCategoryBreakdown('EXPENSE'),
+        getCategoryBreakdown('INCOME'),
+        getTransactions(),
+      ])
 
-  const stats = statsResult.data
-  const expenseBreakdown = expenseBreakdownResult.data || []
-  const incomeBreakdown = incomeBreakdownResult.data || []
-  const transactions = transactionsResult.data || []
+    const stats = statsResult.data
+    const expenseBreakdown = expenseBreakdownResult.data || []
+    const incomeBreakdown = incomeBreakdownResult.data || []
+    const transactions = transactionsResult.data || []
 
-  if (!stats) {
-    return (
-      <div className="container mx-auto p-4">
-        <p className="text-center text-gray-500">Failed to load analytics data</p>
-      </div>
-    )
-  }
+    if (!stats) {
+      return (
+        <div className="min-h-screen bg-gray-50 p-4">
+          <div className="container mx-auto max-w-4xl">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <h2 className="text-red-800 font-semibold">Failed to load analytics data</h2>
+              <p className="text-red-600 text-sm mt-2">Error: {statsResult.error || 'Unknown error'}</p>
+            </div>
+          </div>
+        </div>
+      )
+    }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -125,5 +131,19 @@ export default async function AnalyticsPage() {
        
       </div>
     </div>
-  )
+  ) 
+  } catch (error) {
+    console.error('Analytics page error:', error)
+    return (
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h2 className="text-red-800 font-semibold">Error Loading Analytics</h2>
+            <p className="text-red-600 text-sm mt-2">{error instanceof Error ? error.message : 'Unknown error occurred'}</p>
+            <p className="text-gray-600 text-xs mt-2">Check server logs for more details</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 }
