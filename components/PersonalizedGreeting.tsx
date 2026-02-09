@@ -1,16 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getUserName, getTimeBasedGreeting } from '@/lib/user-device'
+import { useSession } from 'next-auth/react'
+import { getTimeBasedGreeting } from '@/lib/user-device'
 
 export default function PersonalizedGreeting() {
-  const [userName, setUserName] = useState<string | null>(null)
+  const { data: session } = useSession()
   const [greeting, setGreeting] = useState('')
 
   useEffect(() => {
-    setUserName(getUserName())
     setGreeting(getTimeBasedGreeting())
   }, [])
+
+  const userName = session?.user?.name
 
   if (!userName) {
     return null
