@@ -38,13 +38,13 @@ export default async function AnalyticsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-[#1976D2] text-white p-4 shadow-md">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-7xl">
           <h1 className="text-xl md:text-2xl font-bold">Analytics</h1>
           <p className="text-sm text-blue-100">This Month</p>
         </div>
       </div>
 
-      <div className="container mx-auto p-4 max-w-4xl space-y-4">
+      <div className="container mx-auto p-4 lg:p-8 max-w-7xl space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-3">
           <Card className="border-0 shadow bg-green-50">

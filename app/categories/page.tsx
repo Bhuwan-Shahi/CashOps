@@ -17,7 +17,7 @@ export default async function CategoriesPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-[#1976D2] text-white p-4 shadow-md">
-        <div className="container mx-auto max-w-4xl flex items-center justify-between">
+        <div className="container mx-auto max-w-7xl flex items-center justify-between">
           <div>
             <h1 className="text-xl md:text-2xl font-bold">Categories</h1>
             <p className="text-sm text-blue-100">{categories.length} categories</p>
@@ -31,7 +31,7 @@ export default async function CategoriesPage() {
         </div>
       </div>
 
-      <div className="container mx-auto p-4 max-w-4xl space-y-4">
+      <div className="container mx-auto p-4 lg:p-8 max-w-7xl space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="border-0 shadow">
             <CardHeader className="pb-3">

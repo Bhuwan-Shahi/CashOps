@@ -33,13 +33,13 @@ export default async function TransactionsPage({
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-[#1976D2] text-white p-4 shadow-md">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-7xl">
           <h1 className="text-xl md:text-2xl font-bold">Transactions</h1>
           <p className="text-sm text-blue-100">{transactions.length} Transactions</p>
         </div>
       </div>
 
-      <div className="container mx-auto p-4 max-w-4xl space-y-4">
+      <div className="container mx-auto p-4 lg:p-8 max-w-7xl space-y-6">
         {/* Add Transaction Button */}
         <Link href="/transactions/new" className="block">
           <Button className="w-full bg-[#1976D2] hover:bg-blue-700 text-white h-12 text-base font-semibold shadow-md">

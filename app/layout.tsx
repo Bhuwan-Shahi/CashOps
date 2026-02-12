@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
+import DesktopNav from "@/components/DesktopNav";
 import WelcomeDialog from "@/components/WelcomeDialog";
 import AuthProvider from "@/components/AuthProvider";
 
@@ -32,7 +33,8 @@ export default function RootLayout({
       >
         <AuthProvider>
           <WelcomeDialog />
-          <div className="pb-16">
+          <DesktopNav />
+          <div className="pb-16 lg:pb-0 lg:pl-64">
             {children}
           </div>
           <BottomNav />

@@ -30,7 +30,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-[#1976D2] text-white p-4 shadow-md">
-        <div className="container mx-auto max-w-2xl flex items-center justify-between">
+        <div className="container mx-auto max-w-7xl flex items-center justify-between">
           <div>
             <PersonalizedGreeting />
             <h1 className="text-2xl font-bold">CashOps</h1>
@@ -42,9 +42,9 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="container mx-auto max-w-2xl p-4 space-y-4">
+      <div className="container mx-auto max-w-7xl p-4 lg:p-8 space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6">
           {/* Income Card */}
           <Card className="border-0 shadow">
             <CardContent className="p-4">
@@ -79,7 +79,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Current Balance Card */}
-        <Card className="border-0 shadow bg-[#1976D2]">
+        <Card className="border-0 shadow bg-[#1976D2] lg:col-span-1">
           <CardContent className="p-5">
             <p className="text-sm text-blue-100 mb-1">Current Balance</p>
             <div className="text-4xl font-bold text-white">
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
         )}
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-3 pt-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 pt-4">
           <Link href="/transactions/new?type=INCOME">
             <Button className="w-full h-14 bg-green-600 hover:bg-green-700 text-white shadow-lg">
               <ArrowUp className="h-5 w-5 mr-2" />
@@ -170,7 +170,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Quick Actions Grid */}
-        <div className="grid grid-cols-4 gap-3 pt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3 lg:gap-4 pt-4">
           <Link href="/transactions">
             <Card className="border-0 shadow hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-4 text-center">
