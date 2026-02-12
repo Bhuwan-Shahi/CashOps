@@ -154,66 +154,26 @@ export default async function DashboardPage() {
         )}
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 pt-4">
-          <Link href="/transactions/new?type=INCOME">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 pt-4 max-w-2xl mx-auto lg:ml-auto lg:mr-[20%]">
+          <Link href="/transactions/new?type=INCOME" className="w-full">
             <Button className="w-full h-14 bg-green-600 hover:bg-green-700 text-white shadow-lg">
-              <ArrowUp className="h-5 w-5 mr-2" />
-              Income
+              <div className="flex items-center justify-center">
+                <ArrowUp className="h-5 w-5 mr-2" />
+                Income
+              </div>
             </Button>
           </Link>
-          <Link href="/transactions/new?type=EXPENSE">
+          <Link href="/transactions/new?type=EXPENSE" className="w-full">
             <Button className="w-full h-14 bg-red-600 hover:bg-red-700 text-white shadow-lg">
-              <ArrowDown className="h-5 w-5 mr-2" />
-              Expense
+              <div className="flex items-center justify-center">
+                <ArrowDown className="h-5 w-5 mr-2" />
+                Expense
+              </div>
             </Button>
           </Link>
         </div>
 
-        {/* Quick Actions Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3 lg:gap-4 pt-4">
-          <Link href="/transactions">
-            <Card className="border-0 shadow hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">💸</div>
-                <p className="text-xs font-medium text-gray-700">Transactions</p>
-                <p className="text-xs text-gray-500">{transactions.length}</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/categories">
-            <Card className="border-0 shadow hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">📁</div>
-                <p className="text-xs font-medium text-gray-700">Categories</p>
-                <p className="text-xs text-gray-500">Manage</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/wishlist">
-            <Card className="border-0 shadow hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🎯</div>
-                <p className="text-xs font-medium text-gray-700">Wishlist</p>
-                <p className="text-xs text-gray-500">Goals</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/analytics">
-            <Card className="border-0 shadow hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">📊</div>
-                <p className="text-xs font-medium text-gray-700">Analytics</p>
-                <p className="text-xs text-gray-500">Insights</p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-
-        {/* Bottom Padding for Mobile Navigation */}
-        <div className="h-20"></div>
+        
       </div>
     </div>
   )

@@ -7,6 +7,11 @@ import { Home, BookOpen, BarChart3, Settings, FolderOpen, Target } from 'lucide-
 export default function DesktopNav() {
   const pathname = usePathname()
 
+  // Don't show nav on login/register pages
+  if (pathname === '/login' || pathname === '/register') {
+    return null
+  }
+
   const navItems = [
     { href: '/', icon: Home, label: 'Dashboard' },
     { href: '/transactions', icon: BookOpen, label: 'Transactions' },
@@ -17,7 +22,7 @@ export default function DesktopNav() {
   ]
 
   return (
-    <div className="hidden lg:block fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 shadow-sm z-40">
+    <div className="hidden md:block fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 shadow-sm z-40">
       <div className="p-6">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-lg bg-[#1976D2] flex items-center justify-center">
