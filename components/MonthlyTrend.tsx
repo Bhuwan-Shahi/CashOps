@@ -47,9 +47,8 @@ export default function MonthlyTrend({ transactions }: MonthlyTrendProps) {
   const totalIncome = monthlyData.reduce((sum, d) => sum + d.income, 0)
   const totalExpenses = monthlyData.reduce((sum, d) => sum + d.expenses, 0)
   const balance = totalIncome - totalExpenses
-  const total = totalIncome + totalExpenses // For calculating percentages
 
-  if (transactions.length === 0 || total === 0) {
+  if (transactions.length === 0 || totalIncome === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
         <p>No transaction data available</p>
@@ -57,12 +56,17 @@ export default function MonthlyTrend({ transactions }: MonthlyTrendProps) {
     )
   }
 
+  // Calculate percentages relative to income (expenses as % of income)
+  const expenseRatio = totalIncome > 0 ? (totalExpenses / totalIncome) : 0
+  
+  // For pie chart: show income as full circle (360°) and expenses proportionally
+  const incomeAngle = 360 // Full circle represents income
+  const expenseAngle = expenseRatio * 360 // Expenses as proportion of income
+  
+  // For display percentages (relative to total money flow)
+  const total = totalIncome + totalExpenses
   const incomePercentage = (totalIncome / total) * 100
   const expensePercentage = (totalExpenses / total) * 100
-
-  // Calculate pie chart segments
-  const incomeAngle = (incomePercentage / 100) * 360
-  const expenseAngle = (expensePercentage / 100) * 360
 
   // Nepali number formatting function
   const formatNepali = (num: number) => {
@@ -82,7 +86,19 @@ export default function MonthlyTrend({ transactions }: MonthlyTrendProps) {
       <div className="flex flex-col items-center justify-center py-8">
         <div className="relative w-64 h-64">
           <svg viewBox="0 0 100 100" className="transform -rotate-90">
-            {/* Expense segment (red) */}
+            {/* Income segment (green) - full circle background */}
+            <circle
+              cx="50"
+              cy="50"
+              r="40"
+              fill="none"
+              stroke="#16a34a"
+              strokeWidth="20"
+              strokeDasharray="251.2 251.2"
+              strokeDashoffset="0"
+              opacity="0.3"
+            />
+            {/* Expense segment (red) - overlaid on income */}
             <circle
               cx="50"
               cy="50"
@@ -92,17 +108,6 @@ export default function MonthlyTrend({ transactions }: MonthlyTrendProps) {
               strokeWidth="20"
               strokeDasharray={`${(expenseAngle / 360) * 251.2} 251.2`}
               strokeDashoffset="0"
-            />
-            {/* Income segment (green) */}
-            <circle
-              cx="50"
-              cy="50"
-              r="40"
-              fill="none"
-              stroke="#16a34a"
-              strokeWidth="20"
-              strokeDasharray={`${(incomeAngle / 360) * 251.2} 251.2`}
-              strokeDashoffset={`-${(expenseAngle / 360) * 251.2}`}
             />
           </svg>
           

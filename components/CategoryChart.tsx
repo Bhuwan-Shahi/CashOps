@@ -1,6 +1,7 @@
 'use client'
 
 import { ChartData } from '@/types'
+import { formatCurrency } from '@/lib/utils'
 
 interface CategoryChartProps {
   data: ChartData[]
@@ -41,7 +42,7 @@ export default function CategoryChart({ data, type }: CategoryChartProps) {
                 <span className="font-medium text-gray-700">{item.name}</span>
               </div>
               <span className="text-gray-600">
-                ₹{item.value.toFixed(2)} ({percentage}%)
+                {formatCurrency(item.value)} ({percentage}%)
               </span>
             </div>
           )
@@ -57,7 +58,7 @@ export default function CategoryChart({ data, type }: CategoryChartProps) {
               <div className="h-8 bg-gray-200 rounded-lg overflow-hidden">
                 <div
                   className={`h-full ${colors[index % colors.length]} transition-all duration-500 flex items-center px-3`}
-                  style={{ width: `${percentage}%` }}
+                  style={{ width: `${Math.max(percentage, 5)}%` }}
                 >
                   {percentage > 15 && (
                     <span className="text-white text-xs font-medium">{item.name}</span>
@@ -72,7 +73,7 @@ export default function CategoryChart({ data, type }: CategoryChartProps) {
       <div className="text-center pt-4 border-t">
         <p className="text-sm text-gray-600">
           Total {type === 'expense' ? 'Expenses' : 'Income'}:{' '}
-          <span className="font-bold text-gray-800">₹{total.toFixed(2)}</span>
+          <span className="font-bold text-gray-800">{formatCurrency(total)}</span>
         </p>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { getDashboardStats, getCategoryBreakdown } from '@/lib/actions/analytics
 import { getTransactions } from '@/lib/actions/transactions'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { TrendingUp, TrendingDown, DollarSign, Wallet } from 'lucide-react'
+import { formatCurrency } from '@/lib/utils'
 import CategoryChart from '@/components/CategoryChart'
 import MonthlyTrend from '@/components/MonthlyTrend'
 
@@ -55,7 +56,7 @@ export default async function AnalyticsPage() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">Income</p>
-                  <p className="text-lg font-bold text-green-600">₹{stats.monthlyIncome.toFixed(2)}</p>
+                  <p className="text-lg font-bold text-green-600">{formatCurrency(stats.monthlyIncome)}</p>
                 </div>
               </div>
             </CardContent>
@@ -69,7 +70,7 @@ export default async function AnalyticsPage() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">Expense</p>
-                  <p className="text-lg font-bold text-red-600">₹{stats.monthlyExpenses.toFixed(2)}</p>
+                  <p className="text-lg font-bold text-red-600">{formatCurrency(stats.monthlyExpenses)}</p>
                 </div>
               </div>
             </CardContent>
