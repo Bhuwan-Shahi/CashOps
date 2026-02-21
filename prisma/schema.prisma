@@ -17,6 +17,7 @@ model User {
   categories    Category[]
   transactions  Transaction[]
   wishlistItems WishlistItem[]
+  habits        Habit[]
   accounts      Account[]
   sessions      Session[]
 
@@ -132,4 +133,40 @@ enum WishlistStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+model Habit {
+  id          String      @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  frequency   String      @default("daily") // daily, weekly, monthly
+  target      Int         @default(1) // target completions per frequency
+  color       String      @default("#3b82f6")
+  icon        String      @default("📌")
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs        HabitLog[]
+
+  @@index([userId])
+  @@index([active])
+  @@map("habits")
+}
+
+model HabitLog {
+  id        String   @id @default(cuid())
+  habitId   String
+  date      DateTime
+  completed Boolean  @default(true)
+  value     Int?     // for quantifiable habits (e.g., glasses of water)
+  notes     String?
+  createdAt DateTime @default(now())
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, date])
+  @@index([habitId])
+  @@index([date])
+  @@map("habit_logs")
 }

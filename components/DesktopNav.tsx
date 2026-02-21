@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, BarChart3, Settings, FolderOpen, Target } from 'lucide-react'
+import { Home, BookOpen, BarChart3, Settings, FolderOpen, Target, CheckSquare } from 'lucide-react'
 
 export default function DesktopNav() {
   const pathname = usePathname()
@@ -17,6 +17,7 @@ export default function DesktopNav() {
     { href: '/transactions', icon: BookOpen, label: 'Transactions' },
     { href: '/categories', icon: FolderOpen, label: 'Categories' },
     { href: '/wishlist', icon: Target, label: 'Wishlist' },
+    { href: '/habits', icon: CheckSquare, label: 'Habits' },
     { href: '/analytics', icon: BarChart3, label: 'Analytics' },
     { href: '/settings', icon: Settings, label: 'Settings' },
   ]

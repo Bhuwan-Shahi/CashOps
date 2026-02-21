@@ -1,17 +1,20 @@
 import { getDashboardStats } from '@/lib/actions/analytics'
 import { getTransactions } from '@/lib/actions/transactions'
+import { getTodayHabits } from '@/lib/actions/habits'
 import { formatCurrency } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowDown, ArrowUp, Share2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Share2, CheckSquare } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import PersonalizedGreeting from '@/components/PersonalizedGreeting'
+import TodayHabits from '@/components/TodayHabits'
 
 export default async function DashboardPage() {
-  const [statsResult, transactionsResult] = await Promise.all([
+  const [statsResult, transactionsResult, habitsResult] = await Promise.all([
     getDashboardStats(),
     getTransactions(),
+    getTodayHabits(),
   ])
 
   const stats = statsResult.success && statsResult.data ? statsResult.data : {
@@ -25,6 +28,8 @@ export default async function DashboardPage() {
 
   const transactions = transactionsResult.success ? transactionsResult.data : []
   const recentTransactions = transactions.slice(0, 5)
+  
+  const todayHabits = habitsResult.success ? habitsResult.data : []
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -150,6 +155,21 @@ export default async function DashboardPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {/* Today's Habits */}
+        {todayHabits.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold text-gray-900">Today's Habits</h2>
+              <Link href="/habits">
+                <Button variant="ghost" size="sm" className="text-[#1976D2] hover:bg-blue-50">
+                  See All
+                </Button>
+              </Link>
+            </div>
+            <TodayHabits habits={todayHabits} />
           </div>
         )}
 
