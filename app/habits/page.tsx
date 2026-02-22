@@ -3,7 +3,7 @@ import { getHabits } from '@/lib/actions/habits'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { Plus, BarChart3 } from 'lucide-react'
 import HabitCard from '@/components/HabitCard'
 
 export default async function HabitsPage() {
@@ -19,12 +19,20 @@ export default async function HabitsPage() {
             <h1 className="text-xl md:text-2xl font-bold">Habit Tracker</h1>
             <p className="text-sm text-blue-100">Build better habits, track your progress</p>
           </div>
-          <Link href="/habits/new">
-            <Button className="bg-blue-700 hover:bg-blue-800 text-white">
-              <Plus className="mr-2 h-4 w-4" />
-              New Habit
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/habits/analytics">
+              <Button variant="outline" className="bg-transparent text-white border-white hover:bg-blue-700">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                Analytics
+              </Button>
+            </Link>
+            <Link href="/habits/new">
+              <Button className="bg-blue-700 hover:bg-blue-800 text-white">
+                <Plus className="mr-2 h-4 w-4" />
+                New Habit
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
