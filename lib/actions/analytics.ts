@@ -80,13 +80,23 @@ export async function getDashboardStats() {
   }
 }
 
-export async function getCategoryBreakdown(type: TransactionType) {
+export async function getCategoryBreakdown(
+  type: TransactionType,
+  startDate?: Date,
+  endDate?: Date
+) {
   try {
     const user = await getCurrentUser()
     const transactions = await prisma.transaction.findMany({
       where: {
         userId: user.id,
         type,
+        ...(startDate && endDate ? {
+          date: {
+            gte: startDate,
+            lte: endDate,
+          },
+        } : {}),
       },
     })
 

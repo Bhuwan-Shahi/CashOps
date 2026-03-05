@@ -1,25 +1,20 @@
 import { Suspense } from 'react'
-import { getDashboardStats, getCategoryBreakdown } from '@/lib/actions/analytics'
+import { getDashboardStats } from '@/lib/actions/analytics'
 import { getTransactions } from '@/lib/actions/transactions'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { TrendingUp, TrendingDown, DollarSign, Wallet } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { TrendingUp, TrendingDown } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
-import CategoryChart from '@/components/CategoryChart'
 import MonthlyTrend from '@/components/MonthlyTrend'
+import AnalyticsContent from '@/components/AnalyticsContent'
 
 export default async function AnalyticsPage() {
   try {
-    const [statsResult, expenseBreakdownResult, incomeBreakdownResult, transactionsResult] =
-      await Promise.all([
-        getDashboardStats(),
-        getCategoryBreakdown('EXPENSE'),
-        getCategoryBreakdown('INCOME'),
-        getTransactions(),
-      ])
+    const [statsResult, transactionsResult] = await Promise.all([
+      getDashboardStats(),
+      getTransactions(),
+    ])
 
     const stats = statsResult.data
-    const expenseBreakdown = expenseBreakdownResult.data || []
-    const incomeBreakdown = incomeBreakdownResult.data || []
     const transactions = transactionsResult.data || []
 
     if (!stats) {
@@ -80,54 +75,16 @@ export default async function AnalyticsPage() {
         {/* Charts */}
         <div className="grid grid-cols-1 gap-4">
           <Card className="border-0 shadow">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-gray-800">Category Breakdown</CardTitle>
-              <div className="flex gap-4 text-sm mt-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-600 rounded"></div>
-                  <span className="text-gray-700">Income</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-red-600 rounded"></div>
-                  <span className="text-gray-700">Expense</span>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pb-4">
+            <CardContent className="p-4">
               <Suspense fallback={<div>Loading chart...</div>}>
                 <MonthlyTrend transactions={transactions} />
               </Suspense>
             </CardContent>
           </Card>
-
-          <Card className="border-0 shadow">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center justify-between">
-                <span className="text-gray-800">Category Breakdown</span>
-                <span className="text-sm text-[#1976D2] font-normal">Income</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Suspense fallback={<div>Loading...</div>}>
-                <CategoryChart data={incomeBreakdown} type="income" />
-              </Suspense>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center justify-between">
-                <span className="text-gray-800">Category Breakdown</span>
-                <span className="text-sm text-red-600 font-normal">Expense</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Suspense fallback={<div>Loading...</div>}>
-                <CategoryChart data={expenseBreakdown} type="expense" />
-              </Suspense>
-            </CardContent>
-          </Card>
         </div>
+
+        {/* Category Breakdown with Time Filters */}
+        <AnalyticsContent />
 
       </div>
     </div>
