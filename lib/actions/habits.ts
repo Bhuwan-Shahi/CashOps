@@ -166,7 +166,8 @@ export async function getTodayHabits() {
 
     return { success: true, data: habits }
   } catch (error) {
-    console.error('Error fetching today habits:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.warn(`Today habits unavailable: ${message}`)
     return { success: false, error: 'Failed to fetch habits', data: [] }
   }
 }

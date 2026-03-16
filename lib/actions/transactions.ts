@@ -68,6 +68,8 @@ export async function getTransactions(filters?: {
   endDate?: Date
   type?: TransactionType
   category?: string
+  page?: number
+  pageSize?: number
 }) {
   try {
     const user = await getCurrentUser()
@@ -82,10 +84,26 @@ export async function getTransactions(filters?: {
     if (filters?.type) where.type = filters.type
     if (filters?.category) where.category = filters.category
 
-    const transactions = await prisma.transaction.findMany({
-      where,
-      orderBy: { date: 'desc' },
-    })
+    const shouldPaginate =
+      typeof filters?.page === 'number' && typeof filters?.pageSize === 'number'
+    const page = Math.max(1, filters?.page ?? 1)
+    const pageSize = Math.min(100, Math.max(1, filters?.pageSize ?? 20))
+
+    const [transactions, totalCount] = await Promise.all([
+      prisma.transaction.findMany({
+        where,
+        orderBy: { date: 'desc' },
+        ...(shouldPaginate
+          ? {
+              skip: (page - 1) * pageSize,
+              take: pageSize,
+            }
+          : {}),
+      }),
+      shouldPaginate
+        ? prisma.transaction.count({ where })
+        : Promise.resolve(0),
+    ])
 
     // Convert Decimal to number for client components
     const serializedTransactions = transactions.map(t => ({
@@ -93,9 +111,25 @@ export async function getTransactions(filters?: {
       amount: Number(t.amount)
     }))
 
-    return { success: true, data: serializedTransactions }
+    const totalPages = shouldPaginate ? Math.max(1, Math.ceil(totalCount / pageSize)) : 1
+
+    return {
+      success: true,
+      data: serializedTransactions,
+      pagination: shouldPaginate
+        ? {
+            page,
+            pageSize,
+            totalCount,
+            totalPages,
+            hasPreviousPage: page > 1,
+            hasNextPage: page < totalPages,
+          }
+        : undefined,
+    }
   } catch (error) {
-    console.error('Error fetching transactions:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.warn(`Transactions unavailable: ${message}`)
     return { success: false, error: 'Failed to fetch transactions', data: [] }
   }
 }

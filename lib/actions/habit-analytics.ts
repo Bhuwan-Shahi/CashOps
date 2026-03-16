@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/db'
 import { getCurrentUser } from '@/lib/get-current-user'
-import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, subMonths, format } from 'date-fns'
+import { startOfMonth, endOfMonth, eachDayOfInterval, subMonths, format, startOfDay, endOfDay } from 'date-fns'
 
 export async function getHabitAnalytics() {
   try {
@@ -31,12 +31,13 @@ export async function getHabitAnalytics() {
     })
 
     // Calculate overall stats
-    const thisMonthLogs = await prisma.habitLog.findMany({
+    const thisMonthCompleted = await prisma.habitLog.count({
       where: {
         habit: {
           userId: user.id,
           active: true,
         },
+        completed: true,
         date: {
           gte: monthStart,
           lte: monthEnd,
@@ -44,21 +45,19 @@ export async function getHabitAnalytics() {
       },
     })
 
-    const lastMonthLogs = await prisma.habitLog.findMany({
+    const lastMonthCompleted = await prisma.habitLog.count({
       where: {
         habit: {
           userId: user.id,
           active: true,
         },
+        completed: true,
         date: {
           gte: lastMonthStart,
           lte: lastMonthEnd,
         },
       },
     })
-
-    const thisMonthCompleted = thisMonthLogs.filter(log => log.completed).length
-    const lastMonthCompleted = lastMonthLogs.filter(log => log.completed).length
     
     const daysInMonth = now.getDate()
     const totalPossible = habits.length * daysInMonth
@@ -121,29 +120,44 @@ export async function getHabitAnalytics() {
       end: now,
     })
 
-    const dailyTrend = await Promise.all(
-      last30Days.map(async day => {
-        const dayLogs = await prisma.habitLog.findMany({
-          where: {
-            habit: {
-              userId: user.id,
-              active: true,
-            },
-            date: day,
-          },
-        })
+    const trendStart = startOfDay(last30Days[0])
+    const trendEnd = endOfDay(last30Days[last30Days.length - 1])
+    const trendLogs = await prisma.habitLog.findMany({
+      where: {
+        habit: {
+          userId: user.id,
+          active: true,
+        },
+        date: {
+          gte: trendStart,
+          lte: trendEnd,
+        },
+      },
+      select: {
+        date: true,
+        completed: true,
+      },
+    })
 
-        const completed = dayLogs.filter(log => log.completed).length
-        const total = habits.length
+    const completedByDay = new Map<string, number>()
+    for (const log of trendLogs) {
+      if (!log.completed) continue
+      const key = format(new Date(log.date), 'yyyy-MM-dd')
+      completedByDay.set(key, (completedByDay.get(key) ?? 0) + 1)
+    }
 
-        return {
-          date: format(day, 'MMM d'),
-          completed,
-          total,
-          rate: total > 0 ? (completed / total) * 100 : 0,
-        }
-      })
-    )
+    const dailyTrend = last30Days.map((day) => {
+      const key = format(day, 'yyyy-MM-dd')
+      const completed = completedByDay.get(key) ?? 0
+      const total = habits.length
+
+      return {
+        date: format(day, 'MMM d'),
+        completed,
+        total,
+        rate: total > 0 ? (completed / total) * 100 : 0,
+      }
+    })
 
     return {
       success: true,
@@ -153,7 +167,7 @@ export async function getHabitAnalytics() {
         lastMonthCompleted,
         completionRate,
         habitStats,
-        dailyTrend: await Promise.all(dailyTrend.map(async d => d)),
+        dailyTrend,
       },
     }
   } catch (error) {

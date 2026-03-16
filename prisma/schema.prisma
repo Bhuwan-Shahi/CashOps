@@ -80,6 +80,10 @@ model Transaction {
   @@index([type])
   @@index([date])
   @@index([category])
+  @@index([userId, date])
+  @@index([userId, date(sort: Desc)])
+  @@index([userId, type, date])
+  @@index([userId, category, date])
   @@map("transactions")
 }
 

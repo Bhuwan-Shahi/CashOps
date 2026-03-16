@@ -11,13 +11,26 @@ import PersonalizedGreeting from '@/components/PersonalizedGreeting'
 import TodayHabits from '@/components/TodayHabits'
 
 export default async function DashboardPage() {
-  const [statsResult, transactionsResult, habitsResult] = await Promise.all([
+  const [statsResult, transactionsResult, habitsResult] = await Promise.allSettled([
     getDashboardStats(),
     getTransactions(),
     getTodayHabits(),
   ])
 
-  const stats = statsResult.success && statsResult.data ? statsResult.data : {
+  const statsSafe =
+    statsResult.status === 'fulfilled'
+      ? statsResult.value
+      : { success: false as const, error: 'Failed to fetch stats' }
+  const transactionsSafe =
+    transactionsResult.status === 'fulfilled'
+      ? transactionsResult.value
+      : { success: false as const, data: [] as any[] }
+  const habitsSafe =
+    habitsResult.status === 'fulfilled'
+      ? habitsResult.value
+      : { success: false as const, data: [] as any[] }
+
+  const stats = statsSafe.success && statsSafe.data ? statsSafe.data : {
     totalIncome: 0,
     totalExpenses: 0,
     netBalance: 0,
@@ -26,10 +39,11 @@ export default async function DashboardPage() {
     topCategories: [],
   }
 
-  const transactions = transactionsResult.success ? transactionsResult.data : []
+  const transactions = transactionsSafe.success ? transactionsSafe.data : []
   const recentTransactions = transactions.slice(0, 5)
   
-  const todayHabits = habitsResult.success ? habitsResult.data : []
+  const todayHabits = habitsSafe.success ? habitsSafe.data : []
+  const hasDataIssue = !statsSafe.success || !transactionsSafe.success || !habitsSafe.success
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -48,6 +62,16 @@ export default async function DashboardPage() {
       </div>
 
       <div className="container mx-auto max-w-7xl p-4 lg:p-8 space-y-6">
+        {hasDataIssue && (
+          <Card className="border border-amber-200 bg-amber-50 shadow-none">
+            <CardContent className="p-3">
+              <p className="text-sm text-amber-800">
+                Live data is temporarily unavailable. Showing fallback values while database connection recovers.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Summary Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6">
           {/* Income Card */}

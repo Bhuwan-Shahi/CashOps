@@ -11,14 +11,17 @@ import TransactionFilters from '@/components/TransactionFilters'
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ type?: string; category?: string; startDate?: string; endDate?: string }>
+  searchParams?: Promise<{ type?: string; category?: string; startDate?: string; endDate?: string; page?: string }>
 }) {
   const params = await searchParams
+  const currentPage = Math.max(1, Number(params?.page ?? '1') || 1)
   const filters = {
     type: params?.type as any,
     category: params?.category,
     startDate: params?.startDate ? new Date(params.startDate) : undefined,
     endDate: params?.endDate ? new Date(params.endDate) : undefined,
+    page: currentPage,
+    pageSize: 20,
   }
 
   const [transactionsResult, categoriesResult] = await Promise.all([
@@ -33,7 +36,18 @@ export default async function TransactionsPage({
   if (params?.endDate) exportParams.set('endDate', params.endDate)
   const exportHref = `/api/transactions/export${exportParams.toString() ? `?${exportParams.toString()}` : ''}`
 
+  const buildPageHref = (page: number) => {
+    const query = new URLSearchParams()
+    if (params?.type) query.set('type', params.type)
+    if (params?.category) query.set('category', params.category)
+    if (params?.startDate) query.set('startDate', params.startDate)
+    if (params?.endDate) query.set('endDate', params.endDate)
+    query.set('page', String(page))
+    return `/transactions?${query.toString()}`
+  }
+
   const transactions = transactionsResult.data || []
+  const pagination = transactionsResult.pagination
   const categories = categoriesResult.data || []
 
   return (
@@ -79,6 +93,34 @@ export default async function TransactionsPage({
             </Suspense>
           </CardContent>
         </Card>
+
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between gap-3">
+            {pagination.hasPreviousPage ? (
+              <Link href={buildPageHref(pagination.page - 1)}>
+                <Button variant="outline">Previous</Button>
+              </Link>
+            ) : (
+              <Button variant="outline" disabled>
+                Previous
+              </Button>
+            )}
+
+            <p className="text-sm text-gray-600">
+              Page {pagination.page} of {pagination.totalPages}
+            </p>
+
+            {pagination.hasNextPage ? (
+              <Link href={buildPageHref(pagination.page + 1)}>
+                <Button variant="outline">Next</Button>
+              </Link>
+            ) : (
+              <Button variant="outline" disabled>
+                Next
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

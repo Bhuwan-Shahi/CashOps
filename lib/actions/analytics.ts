@@ -12,56 +12,78 @@ export async function getDashboardStats() {
     const monthStart = startOfMonth(now)
     const monthEnd = endOfMonth(now)
 
-    // Get all transactions
-    const allTransactions = await prisma.transaction.findMany({
-      where: { userId: user.id },
-    })
-
-    // Get monthly transactions
-    const monthlyTransactions = await prisma.transaction.findMany({
-      where: {
-        userId: user.id,
-        date: {
-          gte: monthStart,
-          lte: monthEnd,
+    const [
+      totalIncomeAgg,
+      totalExpensesAgg,
+      monthlyIncomeAgg,
+      monthlyExpensesAgg,
+      topCategoryGroups,
+    ] = await Promise.all([
+      prisma.transaction.aggregate({
+        where: {
+          userId: user.id,
+          type: TransactionType.INCOME,
         },
-      },
-    })
+        _sum: { amount: true },
+      }),
+      prisma.transaction.aggregate({
+        where: {
+          userId: user.id,
+          type: TransactionType.EXPENSE,
+        },
+        _sum: { amount: true },
+      }),
+      prisma.transaction.aggregate({
+        where: {
+          userId: user.id,
+          type: TransactionType.INCOME,
+          date: {
+            gte: monthStart,
+            lte: monthEnd,
+          },
+        },
+        _sum: { amount: true },
+      }),
+      prisma.transaction.aggregate({
+        where: {
+          userId: user.id,
+          type: TransactionType.EXPENSE,
+          date: {
+            gte: monthStart,
+            lte: monthEnd,
+          },
+        },
+        _sum: { amount: true },
+      }),
+      prisma.transaction.groupBy({
+        by: ['category'],
+        where: {
+          userId: user.id,
+          type: TransactionType.EXPENSE,
+        },
+        _sum: { amount: true },
+        orderBy: {
+          _sum: {
+            amount: 'desc',
+          },
+        },
+        take: 5,
+      }),
+    ])
 
-    const totalIncome = allTransactions
-      .filter(t => t.type === TransactionType.INCOME)
-      .reduce((sum, t) => sum + Number(t.amount), 0)
+    const totalIncome = Number(totalIncomeAgg._sum.amount ?? 0)
+    const totalExpenses = Number(totalExpensesAgg._sum.amount ?? 0)
+    const monthlyIncome = Number(monthlyIncomeAgg._sum.amount ?? 0)
+    const monthlyExpenses = Number(monthlyExpensesAgg._sum.amount ?? 0)
 
-    const totalExpenses = allTransactions
-      .filter(t => t.type === TransactionType.EXPENSE)
-      .reduce((sum, t) => sum + Number(t.amount), 0)
-
-    const monthlyIncome = monthlyTransactions
-      .filter(t => t.type === TransactionType.INCOME)
-      .reduce((sum, t) => sum + Number(t.amount), 0)
-
-    const monthlyExpenses = monthlyTransactions
-      .filter(t => t.type === TransactionType.EXPENSE)
-      .reduce((sum, t) => sum + Number(t.amount), 0)
-
-    // Calculate top categories (expenses only)
-    const expenseTransactions = allTransactions.filter(t => t.type === TransactionType.EXPENSE)
-    
-    const categoryTotals = expenseTransactions.reduce((acc, t) => {
-      if (!acc[t.category]) {
-        acc[t.category] = { category: t.category, amount: 0 }
+    const topCategories = topCategoryGroups.map((group) => {
+      const amount = Number(group._sum.amount ?? 0)
+      return {
+        category: group.category,
+        amount,
+        percentage: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
       }
-      acc[t.category].amount += Number(t.amount)
-      return acc
-    }, {} as Record<string, { category: string; amount: number }>)
-
-    const topCategories = Object.values(categoryTotals)
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 5)
-      .map(cat => ({
-        ...cat,
-        percentage: totalExpenses > 0 ? (cat.amount / totalExpenses) * 100 : 0,
-      }))
+    })
 
     return {
       success: true,
@@ -75,7 +97,8 @@ export async function getDashboardStats() {
       },
     }
   } catch (error) {
-    console.error('Error fetching dashboard stats:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.warn(`Dashboard stats unavailable: ${message}`)
     return { success: false, error: 'Failed to fetch stats' }
   }
 }
@@ -87,7 +110,8 @@ export async function getCategoryBreakdown(
 ) {
   try {
     const user = await getCurrentUser()
-    const transactions = await prisma.transaction.findMany({
+    const grouped = await prisma.transaction.groupBy({
+      by: ['category'],
       where: {
         userId: user.id,
         type,
@@ -98,24 +122,25 @@ export async function getCategoryBreakdown(
           },
         } : {}),
       },
+      _sum: {
+        amount: true,
+      },
+      orderBy: {
+        _sum: {
+          amount: 'desc',
+        },
+      },
     })
 
-    const breakdown = transactions.reduce((acc, t) => {
-      if (!acc[t.category]) {
-        acc[t.category] = 0
-      }
-      acc[t.category] += Number(t.amount)
-      return acc
-    }, {} as Record<string, number>)
-
-    const data = Object.entries(breakdown).map(([name, value]) => ({
-      name,
-      value,
+    const data = grouped.map((item) => ({
+      name: item.category,
+      value: Number(item._sum.amount ?? 0),
     }))
 
     return { success: true, data }
   } catch (error) {
-    console.error('Error fetching category breakdown:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.warn(`Category breakdown unavailable: ${message}`)
     return { success: false, error: 'Failed to fetch breakdown', data: [] }
   }
 }
