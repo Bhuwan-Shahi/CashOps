@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import DesktopNav from "@/components/DesktopNav";
 import WelcomeDialog from "@/components/WelcomeDialog";
-import AuthProvider from "@/components/AuthProvider";
+import AuthProvider from "@/components/AuthProvider"
+import AppShell from "@/components/AppShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +34,7 @@ export default function RootLayout({
         <AuthProvider>
           <WelcomeDialog />
           <DesktopNav />
-          <div className="md:pl-64">
-            {children}
-          </div>
+          <AppShell>{children}</AppShell>
         </AuthProvider>
       </body>
     </html>
