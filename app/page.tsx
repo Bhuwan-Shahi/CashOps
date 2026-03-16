@@ -4,7 +4,7 @@ import { getTodayHabits } from '@/lib/actions/habits'
 import { formatCurrency } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowDown, ArrowUp, Share2, CheckSquare } from 'lucide-react'
+import { ArrowDown, ArrowUp, Share2, CheckSquare, NotebookPen } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import PersonalizedGreeting from '@/components/PersonalizedGreeting'
@@ -188,6 +188,14 @@ export default async function DashboardPage() {
               <div className="flex items-center justify-center">
                 <ArrowDown className="h-5 w-5 mr-2" />
                 Expense
+              </div>
+            </Button>
+          </Link>
+          <Link href="/journal" className="w-full col-span-2 lg:col-span-1">
+            <Button className="w-full h-14 bg-[#1976D2] hover:bg-blue-700 text-white shadow-lg">
+              <div className="flex items-center justify-center">
+                <NotebookPen className="h-5 w-5 mr-2" />
+                Daily Journal
               </div>
             </Button>
           </Link>
