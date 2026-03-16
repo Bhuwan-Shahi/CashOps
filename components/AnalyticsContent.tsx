@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getCategoryBreakdown } from '@/lib/actions/analytics'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import CategoryChart from '@/components/CategoryChart'
-import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfDay, endOfDay, subMonths } from 'date-fns'
+import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfDay, endOfDay } from 'date-fns'
 
 type TimePeriod = 'today' | 'week' | 'month' | 'all'
 
@@ -14,11 +14,23 @@ interface CategoryData {
   value: number
 }
 
-export default function AnalyticsContent() {
-  const [period, setPeriod] = useState<TimePeriod>('month')
-  const [expenseBreakdown, setExpenseBreakdown] = useState<CategoryData[]>([])
-  const [incomeBreakdown, setIncomeBreakdown] = useState<CategoryData[]>([])
+interface AnalyticsContentProps {
+  initialPeriod?: TimePeriod
+  initialExpenseBreakdown?: CategoryData[]
+  initialIncomeBreakdown?: CategoryData[]
+}
+
+export default function AnalyticsContent({
+  initialPeriod = 'month',
+  initialExpenseBreakdown = [],
+  initialIncomeBreakdown = [],
+}: AnalyticsContentProps) {
+  const [period, setPeriod] = useState<TimePeriod>(initialPeriod)
+  const [expenseBreakdown, setExpenseBreakdown] = useState<CategoryData[]>(initialExpenseBreakdown)
+  const [incomeBreakdown, setIncomeBreakdown] = useState<CategoryData[]>(initialIncomeBreakdown)
   const [loading, setLoading] = useState(false)
+  const hasInitialData = initialExpenseBreakdown.length > 0 || initialIncomeBreakdown.length > 0
+  const skippedInitialFetch = useRef(false)
 
   const getDateRange = (period: TimePeriod) => {
     const now = new Date()
@@ -35,6 +47,11 @@ export default function AnalyticsContent() {
   }
 
   useEffect(() => {
+    if (!skippedInitialFetch.current && period === initialPeriod && hasInitialData) {
+      skippedInitialFetch.current = true
+      return
+    }
+
     const fetchData = async () => {
       setLoading(true)
       const { start, end } = getDateRange(period)
@@ -50,7 +67,7 @@ export default function AnalyticsContent() {
     }
 
     fetchData()
-  }, [period])
+  }, [hasInitialData, initialPeriod, period])
 
   const periodLabels = {
     today: 'Today',

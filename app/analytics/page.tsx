@@ -1,21 +1,31 @@
 import { Suspense } from 'react'
 import { getDashboardStats } from '@/lib/actions/analytics'
 import { getTransactions } from '@/lib/actions/transactions'
+import { getCategoryBreakdown } from '@/lib/actions/analytics'
 import { Card, CardContent } from '@/components/ui/card'
 import { TrendingUp, TrendingDown } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import MonthlyTrend from '@/components/MonthlyTrend'
 import AnalyticsContent from '@/components/AnalyticsContent'
+import { endOfMonth, startOfMonth } from 'date-fns'
 
 export default async function AnalyticsPage() {
   try {
-    const [statsResult, transactionsResult] = await Promise.all([
+    const now = new Date()
+    const monthStart = startOfMonth(now)
+    const monthEnd = endOfMonth(now)
+
+    const [statsResult, transactionsResult, initialExpenseBreakdownResult, initialIncomeBreakdownResult] = await Promise.all([
       getDashboardStats(),
       getTransactions(),
+      getCategoryBreakdown('EXPENSE', monthStart, monthEnd),
+      getCategoryBreakdown('INCOME', monthStart, monthEnd),
     ])
 
     const stats = statsResult.data
     const transactions = transactionsResult.data || []
+    const initialExpenseBreakdown = initialExpenseBreakdownResult.data || []
+    const initialIncomeBreakdown = initialIncomeBreakdownResult.data || []
 
     if (!stats) {
       return (
@@ -84,7 +94,11 @@ export default async function AnalyticsPage() {
         </div>
 
         {/* Category Breakdown with Time Filters */}
-        <AnalyticsContent />
+        <AnalyticsContent
+          initialPeriod="month"
+          initialExpenseBreakdown={initialExpenseBreakdown}
+          initialIncomeBreakdown={initialIncomeBreakdown}
+        />
 
       </div>
     </div>
