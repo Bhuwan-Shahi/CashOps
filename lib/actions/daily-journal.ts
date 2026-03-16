@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/db'
 import { getCurrentUser } from '@/lib/get-current-user'
 
+const dailyJournal = (prisma as any).dailyJournal
+
 function toUtcDateOnly(dateString: string) {
   const [year, month, day] = dateString.split('-').map(Number)
   return new Date(Date.UTC(year, (month || 1) - 1, day || 1, 0, 0, 0, 0))
@@ -14,7 +16,7 @@ export async function getDailyJournalByDate(date: string) {
     const user = await getCurrentUser()
     const normalizedDate = toUtcDateOnly(date)
 
-    const entry = await prisma.dailyJournal.findUnique({
+    const entry = await dailyJournal.findUnique({
       where: {
         userId_date: {
           userId: user.id,
@@ -39,7 +41,7 @@ export async function upsertDailyJournal(data: {
     const user = await getCurrentUser()
     const normalizedDate = toUtcDateOnly(data.date)
 
-    const entry = await prisma.dailyJournal.upsert({
+    const entry = await dailyJournal.upsert({
       where: {
         userId_date: {
           userId: user.id,
@@ -71,7 +73,7 @@ export async function getRecentDailyJournals(limit = 14) {
   try {
     const user = await getCurrentUser()
 
-    const entries = await prisma.dailyJournal.findMany({
+    const entries = await dailyJournal.findMany({
       where: { userId: user.id },
       orderBy: { date: 'desc' },
       take: limit,
