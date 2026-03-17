@@ -1,5 +1,4 @@
 import { Suspense } from 'react'
-import dynamic from 'next/dynamic'
 import { getTransactions } from '@/lib/actions/transactions'
 import { getCategories } from '@/lib/actions/categories'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -7,11 +6,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Plus, Download } from 'lucide-react'
 import TransactionList from '@/components/TransactionList'
-
-const TransactionFilters = dynamic(() => import('@/components/TransactionFilters'), {
-  ssr: false,
-  loading: () => <div>Loading filters...</div>,
-})
+import TransactionFilters from '@/components/TransactionFilters'
 
 export default async function TransactionsPage({
   searchParams,
@@ -84,7 +79,9 @@ export default async function TransactionsPage({
         {/* Filters */}
         <Card className="border-0 shadow">
           <CardContent className="p-4">
-            <TransactionFilters categories={categories} currentFilters={filters} />
+            <Suspense fallback={<div>Loading filters...</div>}>
+              <TransactionFilters categories={categories} currentFilters={filters} />
+            </Suspense>
           </CardContent>
         </Card>
 

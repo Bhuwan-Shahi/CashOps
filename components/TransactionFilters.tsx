@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface TransactionFiltersProps {
   categories: Category[]
@@ -21,6 +21,7 @@ interface TransactionFiltersProps {
 export default function TransactionFilters({ categories, currentFilters }: TransactionFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [mounted, setMounted] = useState(false)
 
   const [type, setType] = useState(currentFilters.type || 'ALL')
   const [category, setCategory] = useState(currentFilters.category || 'ALL')
@@ -30,6 +31,10 @@ export default function TransactionFilters({ categories, currentFilters }: Trans
   const [endDate, setEndDate] = useState(
     currentFilters.endDate ? currentFilters.endDate.toISOString().split('T')[0] : ''
   )
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const applyFilters = () => {
     const params = new URLSearchParams(searchParams.toString())
@@ -55,6 +60,10 @@ export default function TransactionFilters({ categories, currentFilters }: Trans
     setStartDate('')
     setEndDate('')
     router.push('/transactions')
+  }
+
+  if (!mounted) {
+    return <div className="h-24" />
   }
 
   return (
