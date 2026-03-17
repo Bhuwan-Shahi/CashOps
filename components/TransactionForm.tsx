@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createTransaction } from '@/lib/actions/transactions'
+import { createTransaction, updateTransaction } from '@/lib/actions/transactions'
+import { toast } from 'sonner'
 import { Category, TransactionType } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,6 +27,7 @@ interface TransactionFormProps {
 export default function TransactionForm({ categories, initialType, transaction }: TransactionFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const isEditMode = Boolean(transaction)
 
   const [formData, setFormData] = useState({
     type: transaction?.type || initialType || ('EXPENSE' as TransactionType),
@@ -44,30 +46,38 @@ export default function TransactionForm({ categories, initialType, transaction }
     setIsLoading(true)
 
     try {
-      const result = await createTransaction({
+      const payload = {
         type: formData.type,
         amount: Number(formData.amount),
         category: formData.category,
         description: formData.description || undefined,
         date: new Date(formData.date),
-      })
+      }
+
+      const result = isEditMode && transaction
+        ? await updateTransaction(transaction.id, payload)
+        : await createTransaction(payload)
 
       if (result.success) {
-        router.push('/transactions')
-        router.refresh()
+        toast.success(`Transaction ${isEditMode ? 'updated' : 'saved'} successfully`)
+        setTimeout(() => {
+          router.push('/transactions')
+          router.refresh()
+        }, 450)
       } else {
-        alert(result.error || 'Failed to create transaction')
+        toast.error(result.error || `Failed to ${isEditMode ? 'update' : 'create'} transaction`)
       }
     } catch (error) {
       console.error('Error submitting form:', error)
-      alert('Failed to create transaction')
+      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} transaction`)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-4">
+    <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-4 relative">
+
       {/* Type Selector Pills */}
       <div className="grid grid-cols-2 gap-3">
         <button
@@ -167,7 +177,7 @@ export default function TransactionForm({ categories, initialType, transaction }
         disabled={isLoading}
         className="w-full h-12 bg-[#1976D2] hover:bg-blue-700 text-white font-semibold text-lg rounded-lg shadow-md"
       >
-        {isLoading ? 'Saving...' : 'Save Transaction'}
+        {isLoading ? 'Saving...' : isEditMode ? 'Update Transaction' : 'Save Transaction'}
       </Button>
     </form>
   )

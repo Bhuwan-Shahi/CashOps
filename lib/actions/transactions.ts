@@ -31,13 +31,33 @@ export async function createTransaction(data: TransactionFormData) {
 
 export async function updateTransaction(id: string, data: Partial<TransactionFormData>) {
   try {
-    const transaction = await prisma.transaction.update({
-      where: { id },
+    const user = await getCurrentUser()
+
+    const updateResult = await prisma.transaction.updateMany({
+      where: {
+        id,
+        userId: user.id,
+      },
       data: {
         ...data,
         updatedAt: new Date(),
       },
     })
+
+    if (updateResult.count === 0) {
+      return { success: false, error: 'Transaction not found' }
+    }
+
+    const transaction = await prisma.transaction.findFirst({
+      where: {
+        id,
+        userId: user.id,
+      },
+    })
+
+    if (!transaction) {
+      return { success: false, error: 'Transaction not found' }
+    }
 
     revalidatePath('/')
     revalidatePath('/transactions')
@@ -50,9 +70,18 @@ export async function updateTransaction(id: string, data: Partial<TransactionFor
 
 export async function deleteTransaction(id: string) {
   try {
-    await prisma.transaction.delete({
-      where: { id },
+    const user = await getCurrentUser()
+
+    const deleteResult = await prisma.transaction.deleteMany({
+      where: {
+        id,
+        userId: user.id,
+      },
     })
+
+    if (deleteResult.count === 0) {
+      return { success: false, error: 'Transaction not found' }
+    }
 
     revalidatePath('/')
     revalidatePath('/transactions')
@@ -136,9 +165,18 @@ export async function getTransactions(filters?: {
 
 export async function getTransaction(id: string) {
   try {
-    const transaction = await prisma.transaction.findUnique({
-      where: { id },
+    const user = await getCurrentUser()
+
+    const transaction = await prisma.transaction.findFirst({
+      where: {
+        id,
+        userId: user.id,
+      },
     })
+
+    if (!transaction) {
+      return { success: false, error: 'Transaction not found' }
+    }
 
     return { success: true, data: transaction }
   } catch (error) {
