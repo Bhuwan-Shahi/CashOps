@@ -70,14 +70,17 @@ export default function MonthlyTrend({ transactions }: MonthlyTrendProps) {
 
   // Nepali number formatting function
   const formatNepali = (num: number) => {
-    const absNum = Math.abs(num)
-    const numStr = absNum.toString()
-    const lastThree = numStr.substring(numStr.length - 3)
-    const otherNumbers = numStr.substring(0, numStr.length - 3)
-    const formatted = otherNumbers !== '' 
-      ? otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + lastThree
-      : lastThree
-    return num < 0 ? '-Rs.' + formatted : 'Rs.' + formatted
+    const absoluteRounded = Math.round((Math.abs(num) + Number.EPSILON) * 100) / 100
+    const [integerPart, decimalPart] = absoluteRounded.toFixed(2).split('.')
+    const lastThree = integerPart.substring(integerPart.length - 3)
+    const otherNumbers = integerPart.substring(0, integerPart.length - 3)
+    const formattedInteger =
+      otherNumbers !== ''
+        ? otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + lastThree
+        : lastThree
+
+    const prefix = num < 0 ? '-Rs.' : 'Rs.'
+    return `${prefix}${formattedInteger}.${decimalPart}`
   }
 
   return (
